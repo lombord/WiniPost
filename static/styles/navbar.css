@@ -1,0 +1,17 @@
+.navbar {
+  --bs-navbar-brand-font-size: 1.7rem;
+}
+
+.nav-profile-photo {
+  width: 45px;
+  height: 45px;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 576px) {
+  .nav-profile-photo {
+    width: 100px;
+    height: 100px;
+    margin-left: 1em;
+  }
+}

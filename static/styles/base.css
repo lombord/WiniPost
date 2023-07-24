@@ -1,0 +1,74 @@
+:root {
+}
+
+body {
+  font-size: 1rem;
+  /* 
+        font-family: 'Catamaran', sans-serif;
+        font-family: 'Dosis', sans-serif;
+        font-family: 'Signika', sans-serif;
+        font-family: 'Roboto', sans-serif;
+        */
+  font-family: "Roboto", sans-serif;
+}
+
+a {
+  font-family: "Catamaran", sans-serif;
+}
+
+.hover-link {
+  text-decoration: none;
+  transition: text-decoration 0.15s ease-out;
+}
+
+.hover-link:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "Signika", sans-serif;
+}
+
+p {
+  font-family: "Roboto", sans-serif;
+}
+
+.container {
+  max-width: 1000px;
+}
+
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.noselect {
+  /* iOS Safari */
+  -webkit-touch-callout: none;
+  /* Safari */
+  -webkit-user-select: none;
+  /* Konqueror HTML */
+  -khtml-user-select: none;
+  /* Old versions of Firefox */
+  -moz-user-select: none;
+  /* Internet Explorer/Edge */
+  -ms-user-select: none;
+  /* Non-prefixed version, currently
+                                        supported by Chrome, Edge, Opera and Firefox */
+  user-select: none;
+}
+.message-box {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.opacity-animation {
+  transition: opacity 0.3 ease-out;
+  opacity: 0;
+}

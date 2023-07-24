@@ -1,0 +1,21 @@
+.posts-box {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.post-div {
+  transition: all 0.2s ease-out;
+}
+
+.post-div:hover {
+  box-shadow: 0 0.2em 0.2em rgba(0, 0, 0, 0.162) !important;
+}
+
+.post-author {
+  text-decoration: none;
+  font-size: 1.35rem;
+}
+
+.post-author:hover {
+  text-decoration: underline;
+}

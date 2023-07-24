@@ -1,0 +1,69 @@
+.profile-gradient {
+  background: rgb(0, 67, 174);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 67, 174, 1) 0%,
+    rgba(23, 141, 255, 1) 100%
+  );
+  position: relative;
+}
+
+.profile-gradient > * {
+  z-index: 1;
+}
+
+.profile-gradient::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+  background: rgb(0, 0, 0);
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.7) 5%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.photo-box {
+  max-width: 600px;
+}
+
+.posts-grid {
+  --post-width: 15em;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, var(--post-width)), 1fr)
+  );
+}
+
+.posts-grid > * {
+}
+
+.profile-photo {
+  width: 200px;
+  height: 180px;
+  object-fit: cover;
+}
+
+.thumbnail-img {
+  height: 220px;
+  object-fit: cover;
+}
+
+@media screen and (max-width: 576px) {
+  .profile-photo {
+    width: 250px;
+    height: 230px;
+  }
+}
+
+@media screen and (min-width: 576px) {
+  .profile-head {
+    transform: translateY(1.3em);
+  }
+}
