@@ -30,4 +30,3 @@ In order to run the webapp you should download and install all the libraries in 
 
 command: **py -m pip install -r requirements.txt**
 
-    

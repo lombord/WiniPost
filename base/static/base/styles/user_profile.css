@@ -32,18 +32,6 @@
   max-width: 600px;
 }
 
-.posts-grid {
-  --post-width: 15em;
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(min(100%, var(--post-width)), 1fr)
-  );
-}
-
-.posts-grid > * {
-}
-
 .profile-photo {
   width: 200px;
   height: 180px;
@@ -64,6 +52,6 @@
 
 @media screen and (min-width: 576px) {
   .profile-head {
-    transform: translateY(1.3em);
+    transform: translateY(1em);
   }
 }

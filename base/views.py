@@ -12,9 +12,8 @@ from .forms import (
     UserEditForm,
 )
 
+
 # Help functions and decorators
-
-
 def check_owner(model: type, key: str, owner_pk: str):
 
     def decor_func(func):
@@ -23,8 +22,7 @@ def check_owner(model: type, key: str, owner_pk: str):
         def wrapper(request: HttpRequest, *args, **kwargs):
             obj = get_object_or_404(model, **{key: kwargs.pop(key)})
             if not request.user.is_superuser and getattr(obj, owner_pk) != request.user.pk:
-                messages.warning(request, _(
-                    "You aren't allowed here!"), 'alert-warning')
+                messages.warning(request, _("You aren't allowed here!"))
                 return redirect(request.META.get('HTTP_REFERER', 'home'))
             return func(request, obj, *args, **kwargs)
 
@@ -34,10 +32,11 @@ def check_owner(model: type, key: str, owner_pk: str):
 
 
 # View functions
-def posts_page(request: HttpRequest):
-    posts = Article.objects.all()
-    context = {'posts': posts}
-    return render(request, 'base/home.html', context=context)
+# user views
+def show_users(request):
+    users = User.objects.all()
+    context = {'users': users}
+    return render(request, 'base/users.html', context=context)
 
 
 def register_user(request: HttpRequest):
@@ -46,13 +45,11 @@ def register_user(request: HttpRequest):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, _(
-                "Account has been created"), 'alert-success')
-            messages.success(request, _(
-                "You are now logged as '%s'") % form.cleaned_data['username'], 'alert-info')
+            messages.success(request, _("Account has been created"))
+            messages.info(request, _("You are now logged as '%s'") %
+                          form.cleaned_data['username'])
             return redirect('edit_profile')
-        messages.error(request, _(
-            'Something went wrong!'), 'alert-danger')
+        messages.error(request, _('Something went wrong!'))
     else:
         form = UserRegisterForm()
     context = {'form': form, 'title': 'Register',
@@ -63,15 +60,15 @@ def register_user(request: HttpRequest):
 def login_user(request: HttpRequest):
     if request.method == 'POST':
         form = LoginForm(request.POST)
-        form.full_clean()
+        form.is_valid()
+        print(form.cleaned_data)
         user = authenticate(request, **form.cleaned_data)
         if user is not None:
-            messages.success(request, _(
-                "You are now logged as '%s'") % form.cleaned_data['username'], 'alert-info')
+            messages.info(request, _("You are now logged as '%s'") %
+                          form.cleaned_data['username'])
             login(request, user)
             return redirect('home')
-        messages.error(request, _(
-            'Incorrect username or password!'), 'alert-danger')
+        messages.error(request, _('Incorrect username or password!'))
     else:
         form = LoginForm()
     context = {'form': form, 'title': 'Login',
@@ -81,17 +78,44 @@ def login_user(request: HttpRequest):
 
 def show_profile(request: HttpRequest, slug: str):
     user = get_object_or_404(User, slug=slug)
-    posts = user.article_set.all()
-    comments = user.comment_set.all()
-    context = {'posts': posts, 'comments': comments, 'user': user}
+    posts = user.posts.all()
+    comments = user.post_comments.all()
+    following = user.following.all()
+    context = {'posts': posts, 'comments': comments,
+               'user': user, 'following': following}
     return render(request, 'base/user_profile.html', context=context)
 
 
 @login_required(login_url='login')
+def follow_user(request: HttpRequest, slug: str):
+    following = get_object_or_404(User, slug=slug)
+    try:
+        following.followers.add(request.user)
+    except Exception as e:
+        messages.error(request, _(str(e)))
+    else:
+        messages.info(request, _("You followed '%s' ") %
+                      following.username)
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+@login_required(login_url='login')
+def unfollow_user(request: HttpRequest, slug: str):
+    following = get_object_or_404(User, slug=slug)
+    try:
+        following.followers.remove(request.user)
+    except Exception as e:
+        messages.error(request, _(str(e)))
+    else:
+        messages.info(request, _("You unfollowed '%s' ") %
+                      following.username)
+    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+@login_required(login_url='login')
 def logout_user(request: HttpRequest):
-    messages.success(request, _(
-        "You are logged out from '%s'") % request.user.username,
-        'alert-info')
+    messages.info(request, _("You are logged out from '%s'") %
+                  request.user.username)
     logout(request)
     return redirect('home')
 
@@ -102,12 +126,10 @@ def edit_profile(request: HttpRequest,):
         form = UserEditForm(request.POST, request.FILES,
                             instance=request.user)
         if form.is_valid():
-            messages.success(request, _(
-                'Changes have been saved'), 'alert-success')
+            messages.success(request, _('Changes have been saved'))
             form.save()
             return redirect('home')
-        messages.error(request, _(
-            'Something went wrong'), 'alert-danger')
+        messages.error(request, _('Something went wrong'))
     else:
         form = UserEditForm(instance=request.user)
     context = {
@@ -116,17 +138,22 @@ def edit_profile(request: HttpRequest,):
     return render(request, 'base/edit_profile.html', context=context)
 
 
+# post views
+def posts_page(request: HttpRequest):
+    posts = Article.objects.all()
+    context = {'posts': posts}
+    return render(request, 'base/home.html', context=context)
+
+
 @login_required(login_url='login')
 def add_post(request: HttpRequest):
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
-            messages.success(request, _(
-                "Post has been added!"), 'alert-info')
+            messages.info(request, _("Post has been added!"))
             post = form.save(request.user)
             return redirect(post)
-        messages.success(request, _(
-            "Something went wrong!"), 'alert-danger')
+        messages.success(request, _("Something went wrong!"))
     else:
         form = ArticleForm()
     context = {'form': form, 'title': 'Add a Post',
@@ -136,7 +163,7 @@ def add_post(request: HttpRequest):
 
 def show_post(request: HttpRequest, pk: int):
     post = get_object_or_404(Article, pk=pk)
-    comments = post.comment_set.all()
+    comments = post.comments.all()
     comment_form = CommentForm()
     context = {'post': post, 'comment_form': comment_form,
                'comments': comments}
@@ -149,12 +176,10 @@ def edit_post(request: HttpRequest, post: Article):
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES, instance=post)
         if form.is_valid():
-            messages.success(request, _(
-                "Changes have been saved!"), 'alert-success')
+            messages.success(request, _("Changes have been saved!"))
             form.save()
             return redirect('home')
-        messages.error(request, _(
-            "Something went wrong!"), 'alert-danger')
+        messages.error(request, _("Something went wrong!"))
     else:
         form = ArticleForm(instance=post)
     context = {'form': form, 'title': f"Edit {post.title}",
@@ -165,12 +190,12 @@ def edit_post(request: HttpRequest, post: Article):
 @login_required(login_url='login')
 @check_owner(Article, 'pk', 'author_id')
 def delete_post(request: HttpRequest, post: Article):
-    messages.success(request, _(
-        "Post has been deleted!"), 'alert-success')
+    messages.success(request, _("Post has been deleted!"))
     post.delete()
     return redirect('home')
 
 
+# comment views
 @login_required(login_url='login')
 def post_comment(request: HttpRequest):
     if request.method != 'POST':

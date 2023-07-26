@@ -42,6 +42,20 @@ p {
   max-width: 1000px;
 }
 
+.flex-grid {
+  --col-width: 15em;
+  --col-max-width: 22em;
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(var(--col-width), 100%), 1fr)
+  );
+}
+
+.flex-grid > * {
+  cursor: pointer;
+}
+
 .text-ellipsis {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -71,4 +85,14 @@ p {
 .opacity-animation {
   transition: opacity 0.3 ease-out;
   opacity: 0;
+}
+
+@media screen and (max-width: 576px) {
+  .flex-grid {
+    justify-items: center;
+  }
+
+  .flex-grid > * {
+    width: min(var(--col-max-width), 100%);
+  }
 }

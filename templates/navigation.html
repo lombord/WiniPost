@@ -25,10 +25,17 @@
             <i class="fa-solid fa-house"></i>
             <span class="align-middle">Home</span></a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link link-light fw-medium"
+             aria-current="page"
+             href="{% url 'users' %}">
+            <i class="fa-solid fa-users align-middle"></i>
+            <span>Users</span></a>
+        </li>
         {% if request.user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link link-light fw-medium" href="{% url 'add_post' %}">
-              <i class="bi bi-plus-square-fill"></i> <span class="align-middle">Add Post</span></a>
+              <i class="fa-solid fa-square-plus align-middle"></i> <span>Add Post</span></a>
           </li>
           <li class="nav-item dropdown order-first order-sm-0">
             <div class="profile-dropdown dropdown-toggle fw-medium text-center"
@@ -61,7 +68,7 @@
           </li>
         {% else %}
           <li class="nav-item">
-            <a class="nav-link link-light fw-medium" href="{% url 'login' %}">Login</a>
+            <a class="nav-link link-light fw-medium" href="{% url 'login' %}"><i class="fa-solid fa-arrow-right-to-bracket align-middle"></i> Login</a>
           </li>
         {% endif %}
       </ul>

@@ -10,48 +10,54 @@
 {% block content %}
   <section class="py-5 posts-section">
     <div class="container">
-      <div class="bg-body shadow-sm rounded-2 py-5 px-3 px-sm-4 px-md-5">
-        <div class="d-flex flex-column gap-5 posts-box my-4">
-          {% for post in posts %}
-            <div class="post-div shadow-sm bg-body-tertiary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4">
-              <h2 class="text-center pb-2 pb-sm-3">
-                {{ post.title }}
-              </h2>
-              <a href="{{ post.author.get_absolute_url }}"
-                 class="post-author lead link-primary text-lowercase">
-                @{{ post.author }}
-              </a>
-              <div class="pt-2 pb-4">
-                {{ post.content|truncatechars:600|linebreaks }}
-              </div>
-              <div class="post-date row row-gap-3 align-items-center">
-                <p class="col-md m-0">
-                  <i class="fa-regular fa-clock"></i>
-                  {{ post.updated|timesince }} ago
-                </p>
-                <div class="col-md d-flex gap-2 justify-content-end">
-                  <a href="{{ post.get_absolute_url }}"
-                     type="button"
-                     class="btn btn-outline-primary">
-                    <i class="fa-solid fa-eye"></i>
-                  </a>
-                  {% if request.user.pk == post.author_id or request.user.is_superuser %}
-                    <a href="{{ post|get_url:'edit_post' }}"
+      <div class="bg-body border shadow-sm rounded-2 py-5 px-3 px-sm-4 px-md-5">
+        {% if posts %}
+          <div class="d-flex flex-column gap-5 posts-box my-4">
+            {% for post in posts %}
+              <div class="border post-div shadow-sm bg-body-tertiary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4">
+                <h2 class="text-center pb-2 pb-sm-3">
+                  {{ post.title|truncatechars:50 }}
+                </h2>
+                <a href="{{ post.author.get_absolute_url }}"
+                   class="post-author lead link-primary text-lowercase">
+                  @{{ post.author }}
+                </a>
+                <div class="pt-2 pb-4">
+                  {{ post.content|truncatechars:600 }}
+                </div>
+                <div class="post-date row row-gap-3 align-items-center">
+                  <p class="col-md m-0">
+                    <i class="fa-regular fa-clock"></i>
+                    {{ post.updated|timesince }} ago
+                  </p>
+                  <div class="col-md d-flex gap-2 justify-content-end">
+                    <a href="{{ post.get_absolute_url }}"
                        type="button"
-                       class="btn btn-outline-success">
-                      <i class="fa-solid fa-pen-to-square"></i>
+                       class="btn btn-outline-primary">
+                      <i class="fa-solid fa-eye"></i>
                     </a>
-                    <a href="{{ post|get_url:'delete_post' }}"
-                       type="button"
-                       class="btn btn-outline-danger">
-                      <i class="fa-solid fa-trash"></i>
-                    </a>
-                  {% endif %}
+                    {% if request.user.pk == post.author_id or request.user.is_superuser %}
+                      <a href="{{ post|get_url:'edit_post' }}"
+                         type="button"
+                         class="btn btn-outline-success">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+                      <a href="{{ post|get_url:'delete_post' }}"
+                         type="button"
+                         class="btn btn-outline-danger">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
+                    {% endif %}
+                  </div>
                 </div>
               </div>
-            </div>
-          {% endfor %}
-        </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <h1 class="text-center">
+            Empty
+          </h1>
+        {% endif %}
       </div>
     </div>
   </section>
