@@ -28,5 +28,15 @@ Im also gonna use frontend framework such as Vue or React
 
 In order to run the webapp you should download and install all the libraries in requirements.txt file 
 
-command: **py -m pip install -r requirements.txt**
+### Command
 
+```bash
+  py -m pip install -r requirements.txt
+```
+
+
+## Update 7/27/2023
+
+- Users page
+- Following system
+- Fix Bugs
