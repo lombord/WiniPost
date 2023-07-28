@@ -34,6 +34,15 @@ In order to run the webapp you should download and install all the libraries in 
   py -m pip install -r requirements.txt
 ```
 
+## Update 7/28/2023
+
+- Searching posts abd Users
+- Improved following system
+- User's followers page
+- User's following page
+- User's posts page
+- Fix bugs
+
 
 ## Update 7/27/2023
 
