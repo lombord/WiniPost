@@ -14,7 +14,7 @@
     <div class="container">
       <div class="bg-body border py-5 px-md-5 px-sm-4 px-3 shadow-sm rounded-2">
         <div class="post-header">
-          <h1 class="text-center display-5 fw-medium text-primary mb-4">
+          <h1 class="text-center display-6 fw-medium text-primary mb-4">
             {{ post.title }}
           </h1>
           <div class="mb-3 d-sm-flex justify-content-between align-items-center">
@@ -66,7 +66,7 @@
           </div>
           <hr />
           {% if request.user.is_authenticated %}
-            <div class="mt-4 bg-body-tertiary p-3 p-sm-4 rounded-3 shadow-sm mb-4">
+            <div class="mt-4 border bg-body-tertiary p-3 p-sm-4 rounded-3 shadow-sm mb-4">
               <form action="{% url 'post_comment' %}" method="POST">
                 {% csrf_token %}
                 <input type="text" name="post_pk" hidden value="{{ post.pk }}" />

@@ -1,0 +1,10 @@
+{% extends 'base/extending/user_profile.html' %}
+{% load custom_tags %}
+{% block profile_content %}
+  <p class="mb-3 lead fw-normal">
+    Posts
+  </p>
+  <div>
+    {% render_mini_posts posts %}
+  </div>
+{% endblock profile_content %}

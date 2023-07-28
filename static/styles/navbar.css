@@ -2,6 +2,12 @@
   --bs-navbar-brand-font-size: 1.7rem;
 }
 
+.navbar-toggler {
+  width: 100%;
+  min-width: 60px;
+  max-width: 90px;
+}
+
 .nav-profile-photo {
   width: 45px;
   height: 45px;

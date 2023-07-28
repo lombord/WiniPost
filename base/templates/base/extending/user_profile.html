@@ -32,16 +32,20 @@
                 </p>
               </div>
               {% if not is_owner %}
-                {% if user.followers.exists and request.user in user.followers.all %}
+                {% if request.user.is_authenticated and user.followers.exists and request.user in user.followers.all %}
                   <div class="flex-grow-1 align-self-end text-end">
-                    <a role="button" class="btn btn-secondary btn-lg shadow" href="{{user|get_url:'unfollow'}}">
+                    <a role="button"
+                       class="btn btn-warning btn-lg shadow"
+                       href="{{ user|get_url:'unfollow' }}">
                       <i class="fa-solid fa-user-minus"></i>
                       Unfollow
                     </a>
                   </div>
                 {% else %}
                   <div class="flex-grow-1 align-self-end text-end">
-                    <a role="button" class="btn btn-primary btn-lg shadow" href="{{user|get_url:'follow'}}">
+                    <a role="button"
+                       class="btn btn-primary btn-lg shadow"
+                       href="{{ user|get_url:'follow' }}">
                       <i class="fa-solid fa-user-plus"></i>
                       Follow
                     </a>
@@ -66,7 +70,7 @@
             <div class="d-flex order-0 justify-content-end text-center py-1">
               <div>
                 <p class="mb-1 h5">
-                  {{ posts|length }}
+                  {{ user.posts.count }}
                 </p>
                 <p class="small text-muted mb-0">
                   Posts
@@ -74,10 +78,10 @@
               </div>
               <div class="px-3">
                 <p class="mb-1 h5">
-                  {{ comments.count }}
+                  {{ user.following.count }}
                 </p>
                 <p class="small text-muted mb-0">
-                  Comments
+                  Following
                 </p>
               </div>
               <div>
@@ -100,44 +104,43 @@
               {{ user.about|default:'About me' }}
             </div>
           </div>
-          <div class="d-flex justify-content-between align-items-center mb-4">
-            <p class="lead fw-normal mb-0">
-              Recent Posts
-            </p>
-            <p class="mb-0">
-              <a href="#!" class="text-muted">Show all</a>
-            </p>
-          </div>
-          <div class="flex-grid gap-3">
-            {% for post in posts|slice:":10" %}
-              <div class="card bg-body-tertiary">
-                <img src="{{ post.image.url }}"
-                     class="card-img-top thumbnail-img"
-                     alt="{{ post.title }}" />
-                <div class="card-body d-flex flex-column justify-content-between gap-3">
-                  <div>
-                    <h4 class="card-title text-center text-ellipsis">
-                      {{ post.title }}
-                    </h4>
-                    <p class="card-text">
-                      {{ post.content|truncatechars:100 }}
-                    </p>
-                  </div>
-                  <a href="{{ post.get_absolute_url }}" class="btn btn-primary"><i class="fa-solid fa-eye"></i> Check</a>
-                </div>
+          <div id="profile_content">
+            {% block profile_content %}
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <p class="lead fw-normal mb-0">
+                  Recent Posts
+                </p>
+                <p class="mb-0">
+                  <a href="{{ user|get_url:'user_posts' }}#profile_content"
+                     class="text-muted">Show all</a>
+                </p>
               </div>
-            {% endfor %}
-          </div>
-          <div class="d-flex mt-5 justify-content-between align-items-center mb-4">
-            <p class="lead fw-normal mb-0">
-              Followed
-            </p>
-            <p class="mb-0">
-              <a href="#!" class="text-muted">Show all</a>
-            </p>
-          </div>
-          <div>
-            {% render_users request following 10 %}
+              {% render_mini_posts user.posts.all _max=3 %}
+              <div class="d-flex mt-5 justify-content-between align-items-center mb-4">
+                <p class="lead fw-normal mb-0">
+                  Followers
+                </p>
+                <p class="mb-0">
+                  <a href="{{ user|get_url:'followers' }}#profile_content"
+                     class="text-muted">Show all</a>
+                </p>
+              </div>
+              <div>
+                {% render_users request user.followers.all _max=3 %}
+              </div>
+              <div class="d-flex mt-5 justify-content-between align-items-center mb-4">
+                <p class="lead fw-normal mb-0">
+                  Following
+                </p>
+                <p class="mb-0">
+                  <a href="{{ user|get_url:'following' }}#profile_content"
+                     class="text-muted">Show all</a>
+                </p>
+              </div>
+              <div>
+                {% render_users request user.following.all is_users=is_owner _max=3 %}
+              </div>
+            {% endblock profile_content %}
           </div>
         </div>
       </div>

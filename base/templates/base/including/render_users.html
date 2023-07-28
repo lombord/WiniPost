@@ -1,5 +1,5 @@
 {% load custom_tags %}
-{% if users %}
+{% if user_in or users %}
   <div class="flex-grid gap-4 gap-sm-3">
     {% if user_in %}
       <div class="card bg-body-tertiary user-thumbnail"
@@ -13,7 +13,7 @@
             {{ request.user.username }}
           </h4>
           <p class="card-text text-center">
-            {{ request.user.get_age }} y.o.
+            {{ request.user.get_full_name }} &#124; {{ request.user.get_age }} y.o.
           </p>
           <a role="button"
              href="{{ request.user.get_absolute_url }}"
@@ -36,12 +36,12 @@
             {{ user.username }}
           </h4>
           <p class="card-text text-center">
-            {{ user.get_age }} y.o.
+            {{ user.get_full_name }} &#124; {{ user.get_age }} y.o.
           </p>
-          {% if user.followers.exists and request.user in user.followers.all %}
+          {% if is_users or user.followers.exists and request.user in user.followers.all %}
             <a role="button"
                href="{{ user|get_url:'unfollow' }}"
-               class="btn btn-secondary w-100">
+               class="btn btn-warning w-100">
               <i class="fa-solid fa-user-minus"></i>
               Unfollow
             </a>

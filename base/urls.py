@@ -5,13 +5,16 @@ from django.contrib.auth.views import LoginView
 from .views import *
 
 urlpatterns = [
-    path('', posts_page, name='home'),
+    path('', show_posts, name='home'),
     # user urls
     path('users/', show_users, name='users'),
     path('login/', login_user, name='login'),
     path('register/', register_user, name='register'),
     path('logout/', logout_user, name='logout'),
     path('user/<slug:slug>/', show_profile, name='user'),
+    path('user/<slug:slug>/posts/', show_user_posts, name='user_posts'),
+    path('user/<slug:slug>/followers/', show_followers, name='followers'),
+    path('user/<slug:slug>/following/', show_following, name='following'),
     path('edit-profile/', edit_profile, name='edit_profile'),
     path('follow/<slug:slug>/', follow_user, name='follow'),
     path('unfollow/<slug:slug>/', unfollow_user, name='unfollow'),

@@ -4,7 +4,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
-from django.db.models import F, Q
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from django.urls import reverse
@@ -65,7 +64,7 @@ class Follow(models.Model):
                 violation_error_message=_("Can't follow twice")),
             # check that user not following self 2
             models.CheckConstraint(
-                check=~Q(follower=F('following')),
+                check=~models.Q(follower=models.F('following')),
                 name='not_follow_self',
                 violation_error_message=_("You can't follow self!"))
         ]

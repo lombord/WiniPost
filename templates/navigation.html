@@ -1,41 +1,60 @@
 {% load custom_tags %}
 <nav class="sticky-md-top navbar navbar-expand-sm bg-primary">
-  <div class="container">
+  <div class="container justify-content-sm-between gap-3 align-items-center">
     <div class="navbar-brand d-flex gap-2 align-items-center">
       <div id="theme-toggler" style="cursor: pointer;">
         <i class="bi bi-brightness-high-fill"></i>
       </div>
       <a class="link-light text-decoration-none" href="{% url 'home' %}">WiniPost</a>
     </div>
-    <button class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNav"
-            aria-controls="navbarNav"
-            aria-expanded="false"
-            aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto d-flex align-items-center flex-column flex-sm-row gap-3">
+    <form role="search"
+          class="flex-grow-1 order-last order-sm-0 mt-2 mt-sm-0"
+          action="{% url send_to|default:'home' %}">
+      <div class="input-group">
+        <input type="text"
+               name="q"
+               class="form-control bg-body-tertiary"
+               placeholder="Search"
+               aria-label="Text input with segmented dropdown button" />
+        <button type="button" class="btn btn-warning px-4">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </button>
+      </div>
+    </form>
+    <div class="d-sm-none col-3 text-end">
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+              aria-controls="navbarNav"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+    <div class="collapse navbar-collapse flex-grow-0 flex-shrink-0"
+         id="navbarNav">
+      <ul class="navbar-nav d-flex align-items-center flex-column flex-sm-row gap-3 gap-md-0 gap-lg-3">
         <li class="nav-item">
           <a class="nav-link link-light fw-medium"
              aria-current="page"
              href="{% url 'home' %}">
             <i class="fa-solid fa-house"></i>
-            <span class="align-middle">Home</span></a>
+            <span class="align-middle d-sm-none d-md-inline">Home</span></a>
         </li>
         <li class="nav-item">
           <a class="nav-link link-light fw-medium"
              aria-current="page"
              href="{% url 'users' %}">
             <i class="fa-solid fa-users align-middle"></i>
-            <span>Users</span></a>
+            <span class="d-sm-none d-md-inline">Users</span></a>
         </li>
         {% if request.user.is_authenticated %}
           <li class="nav-item">
             <a class="nav-link link-light fw-medium" href="{% url 'add_post' %}">
-              <i class="fa-solid fa-square-plus align-middle"></i> <span>Add Post</span></a>
+              <i class="fa-solid fa-square-plus align-middle"></i>
+              <span class="d-sm-none d-md-inline">Add</span>
+            </a>
           </li>
           <li class="nav-item dropdown order-first order-sm-0">
             <div class="profile-dropdown dropdown-toggle fw-medium text-center"
