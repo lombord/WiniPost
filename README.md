@@ -34,6 +34,13 @@ In order to run the webapp you should download and install all the libraries in 
   py -m pip install -r requirements.txt
 ```
 
+## Update 8/01/2023
+
+- Class Based Views
+- User Profile color
+- Fixed bugs and logical mistakes
+
+
 ## Update 7/28/2023
 
 - Searching posts abd Users
