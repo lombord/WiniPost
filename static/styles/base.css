@@ -43,9 +43,10 @@ p {
 }
 
 .flex-grid {
-  --col-width: 15em;
-  --col-max-width: 22em;
+  --col-width: 14em;
+  --col-max-width: 18em;
   display: grid;
+  justify-items: center;
   grid-template-columns: repeat(
     auto-fill,
     minmax(min(var(--col-width), 100%), 1fr)
@@ -54,6 +55,7 @@ p {
 
 .flex-grid > * {
   cursor: pointer;
+  width: min(var(--col-max-width), 100%);
 }
 
 .text-ellipsis {
@@ -90,9 +92,5 @@ p {
 @media screen and (max-width: 576px) {
   .flex-grid {
     justify-items: center;
-  }
-
-  .flex-grid > * {
-    width: min(var(--col-max-width), 100%);
   }
 }

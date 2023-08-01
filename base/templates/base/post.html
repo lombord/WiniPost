@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_tags %}
-
 {% block title %}
   {{ post.title }}
 {% endblock title %}
 {% block link %}
-  <link rel="stylesheet" href="{% static 'base/styles/post.css' %}">
+  <link rel="stylesheet" href="{% static 'base/styles/post.css' %}" />
 {% endblock link %}
-
 {% block content %}
   <section class="py-5 px-md-5 px-sm-4 px-3">
     <div class="container">
@@ -99,7 +97,8 @@
             {% for comment in comments %}
               <div class="d-sm-flex gap-2 p-3 p-sm-4 bg-body-tertiary rounded-3 shadow-sm">
                 <div class="d-flex justify-content-center">
-                  <img class="comment-img rounded-3 shadow-sm"
+                  <img class="comment-img rounded-3 shadow-sm border border-2"
+                       style="border-color: {{ comment.owner.get_color }} !important"
                        src="{{ comment.owner.photo.url }}"
                        alt="" />
                 </div>

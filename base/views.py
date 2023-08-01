@@ -1,21 +1,32 @@
 from functools import wraps
 
-from django.db.models import Count, F, Q
+from django.views.generic import (View, ListView, CreateView,
+                                  DetailView, UpdateView, DeleteView)
+
+from django.db.models import Count, Q
+
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
+
+
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import authenticate, login, logout
+from django.utils.decorators import method_decorator
+from django.contrib.auth.views import LoginView
+from django.contrib.auth import login, logout
+
 from django.utils.translation import gettext as _
+
 from django.contrib import messages
 
 from .models import *
 from .forms import (
-    ArticleForm, LoginForm, UserRegisterForm, CommentForm,
+    PostForm, LoginForm, UserRegisterForm, CommentForm,
     UserEditForm,
 )
 
 
-# Help functions and decorators
+# Help decorators
 def not_authenticated(func):
     """Checks if the user is not authenticated"""
     @wraps(func)
@@ -28,130 +39,110 @@ def not_authenticated(func):
     return wrapper
 
 
-def check_owner(model: type, key: str, owner_pk: str):
-    """Checks if the current user owner of the object of a Model 
-    wrapped view function should get obj as second positional argument
+# Base mixins and view classes
+class MyBaseMixin:
+    static_context = {}
 
-    Args:
-        model (type): Model class to find an object
-        key (str): name of the key to get object 
-        owner_pk (str): name of the owner field in Model
-    """
-    def decor_func(func):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.static_context)
+        context.update(self.get_dynamic_context())
+        return context
 
-        @wraps(func)
-        def wrapper(request: HttpRequest, *args, **kwargs):
-            obj = get_object_or_404(model, **{key: kwargs.pop(key)})
-            if not request.user.is_superuser and getattr(obj, owner_pk) != request.user.pk:
-                messages.warning(request, _("You aren't allowed here!"))
-                return redirect(request.META.get('HTTP_REFERER', 'home'))
-            return func(request, obj, *args, **kwargs)
-
-        return wrapper
-
-    return decor_func
+    def get_dynamic_context(self):
+        return {}
 
 
-# View functions
-# user views
-def show_users(request) -> HttpResponse:
-    query = request.GET.get('q')
-    if query:
-        users = User.objects.filter(
-            Q(username__icontains=query) |
-            Q(first_name__icontains=query) |
-            Q(last_name__icontains=query))
-    else:
-        users = User.objects
-    users = users.annotate(
-        Count('followers')).order_by('-followers__count', 'username')
-    context = {'users': users, 'send_to': 'users'}
-    return render(request, 'base/users.html', context=context)
+class MyBaseFormMixin(MyBaseMixin):
+    success_message = "Thank You!"
+    error_message = "Something went wrong!"
+
+    def form_valid(self, form) -> HttpResponse:
+        self.set_success_message(form)
+        return super().form_valid(form)
+
+    def form_invalid(self, form) -> HttpResponse:
+        self.set_error_message(form)
+        return super().form_invalid(form)
+
+    def set_success_message(self, form):
+        messages.success(self.request, _(self.success_message))
+
+    def set_error_message(self, form):
+        messages.error(self.request, _(self.error_message))
 
 
-@not_authenticated
-def register_user(request: HttpRequest) -> HttpResponse:
-    if request.method == 'POST':
-        form = UserRegisterForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, _("Account has been created"))
-            messages.info(request, _("You are now logged as '%s'") %
-                          form.cleaned_data['username'])
-            return redirect('edit_profile')
-        messages.error(request, _('Something went wrong!'))
-    else:
-        form = UserRegisterForm()
-    context = {'form': form, 'title': 'Register',
-               'submit': 'register'}
-    return render(request, 'base/login.html', context=context)
+class MyBaseListView(MyBaseMixin, ListView):
+    query_key = 'q'
+
+    def get_queryset(self):
+        query = self.request.GET.get(self.query_key)
+        if query:
+            queryset = self.model.objects.filter(*self.get_lookup_args(query),
+                                                 **self.get_lookup_kwargs(query))
+        else:
+            queryset = self.model.objects.all()
+        return queryset
+
+    def get_lookup_args(self, query):
+        """Should return positional lookups such as Q() expressions as iterable"""
+        return tuple()
+
+    def get_lookup_kwargs(self, query):
+        """Should return named lookups (e.g:field=query) as mapping"""
+        return {}
 
 
-@not_authenticated
-def login_user(request: HttpRequest) -> HttpResponse | HttpResponseRedirect:
-    if request.method == 'POST':
-        form = LoginForm(request.POST)
-        form.is_valid()
-        print(form.cleaned_data)
-        user = authenticate(request, **form.cleaned_data)
-        if user is not None:
-            messages.info(request, _("You are now logged as '%s'") %
-                          form.cleaned_data['username'])
-            login(request, user)
-            return redirect('home', permanent=True)
-        messages.error(request, _('Incorrect username or password!'))
-    else:
-        form = LoginForm()
-    context = {'form': form, 'title': 'Login',
-               'submit': 'login', 'is_login': True}
-    return render(request, 'base/login.html', context=context)
+# User view classes
+class UsersView(MyBaseListView):
+    model = User
+    template_name = 'base/users.html'
+    context_object_name = 'users'
+    static_context = {'search_in': 'users'}
+
+    def get_queryset(self):
+        return super().get_queryset().annotate(
+            Count('followers')).order_by('-followers__count', 'username')
+
+    def get_lookup_args(self, query):
+        return (Q(username__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query),)
 
 
-def show_profile(request: HttpRequest, slug: str) -> HttpResponse:
-    user = get_object_or_404(User, slug=slug)
-    context = {'user': user}
-    return render(request, 'base/extending/user_profile.html', context=context)
+@method_decorator(not_authenticated, name='dispatch')
+class RegisterView(MyBaseFormMixin, CreateView):
+    form_class = UserRegisterForm
+    template_name = 'base/login.html'
+    success_url = reverse_lazy('edit_profile')
+
+    static_context = {'title': 'Register', 'submit': 'register'}
+    success_message = "Account has been created"
+
+    def form_valid(self, form) -> HttpResponse:
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
+
+    def set_success_message(self, form):
+        super().set_success_message(form)
+        messages.info(self.request, _("You are now logged as '%s'") %
+                      form.cleaned_data['username'])
 
 
-def show_followers(request: HttpRequest, slug: str) -> HttpResponse:
-    user = get_object_or_404(User, slug=slug)
-    followers = user.followers.all()
-    context = {'user': user, 'followers': followers}
-    return render(request, 'base/user_followers.html', context)
+@method_decorator(not_authenticated, name='dispatch')
+class MyLoginView(MyBaseFormMixin, LoginView):
+    template_name = 'base/login.html'
+    next_page = 'home'
+    authentication_form = LoginForm
+    static_context = {'title': 'Login', 'submit': 'login',
+                      'is_login': True}
 
+    error_message = 'Incorrect username or password!'
 
-def show_following(request: HttpRequest, slug: str) -> HttpResponse:
-    user = get_object_or_404(User, slug=slug)
-    following = user.following.all()
-    context = {'user': user, 'following': following}
-    return render(request, 'base/user_following.html', context)
-
-
-@login_required(login_url='login')
-def follow_user(request: HttpRequest, slug: str) -> HttpResponseRedirect:
-    following = get_object_or_404(User, slug=slug)
-    try:
-        following.followers.add(request.user)
-    except Exception as e:
-        messages.error(request, _("U can't follow self!"))
-    else:
-        messages.info(request, _("You followed '%s' ") %
-                      following.username)
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
-
-@login_required(login_url='login')
-def unfollow_user(request: HttpRequest, slug: str) -> HttpResponseRedirect:
-    following = get_object_or_404(User, slug=slug)
-    try:
-        following.followers.remove(request.user)
-    except Exception as e:
-        messages.error(request, _(str(e)))
-    else:
-        messages.info(request, _("You unfollowed '%s' ") %
-                      following.username)
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+    def set_success_message(self, form):
+        messages.info(self.request, _("You are now logged as '%s'") %
+                      form.cleaned_data['username'])
 
 
 @login_required(login_url='login')
@@ -162,101 +153,140 @@ def logout_user(request: HttpRequest) -> HttpResponseRedirect:
     return redirect('home')
 
 
-@login_required(login_url='login')
-def edit_profile(request: HttpRequest,) -> HttpResponse | HttpResponseRedirect:
-    if request.method == 'POST':
-        form = UserEditForm(request.POST, request.FILES,
-                            instance=request.user)
-        if form.is_valid():
-            messages.success(request, _('Changes have been saved'))
-            form.save()
-            return redirect('home')
-        messages.error(request, _('Something went wrong'))
-    else:
-        form = UserEditForm(instance=request.user)
-    context = {
-        'form': form, 'title': f"Edit {request.user}",
-        'submit': 'edit', 'send_file': True, }
-    return render(request, 'base/edit_profile.html', context=context)
+class UserProfileView(MyBaseMixin, DetailView):
+    model = User
+    context_object_name = 'user'
+    template_name = 'base/extending/user_profile.html'
+    allow_empty = False
 
 
-# post views
-def show_posts(request: HttpRequest) -> HttpResponse:
-    query = request.GET.get('q')
-    if query:
-        posts = Article.objects.filter(
-            Q(title__icontains=query) |
-            Q(author__username__icontains=query) |
-            Q(content__icontains=query))
-    else:
-        posts = Article.objects.all()
-    context = {'posts': posts}
-    return render(request, 'base/home.html', context=context)
+class UserPostsView(UserProfileView):
+    template_name = 'base/user_posts.html'
+
+    def get_dynamic_context(self):
+        return {'posts': self.object.posts.all()}
 
 
-def show_user_posts(request: HttpRequest, slug: str) -> HttpResponse:
-    user = get_object_or_404(User, slug=slug)
-    posts = user.posts.all()
-    context = {'posts': posts, 'user': user}
-    return render(request, 'base/user_posts.html', context=context)
+class UserFollowersView(UserProfileView):
+    template_name = 'base/user_followers.html'
+
+    def get_dynamic_context(self):
+        return {'followers': self.object.ordered_followers()}
 
 
-@login_required(login_url='login')
-def add_post(request: HttpRequest) -> HttpResponse | HttpResponseRedirect:
-    if request.method == 'POST':
-        form = ArticleForm(request.POST, request.FILES)
-        if form.is_valid():
-            messages.info(request, _("Post has been added!"))
-            post = form.save(request.user)
-            return redirect(post)
-        messages.success(request, _("Something went wrong!"))
-    else:
-        form = ArticleForm()
-    context = {'form': form, 'title': 'Add a Post',
-               'submit': 'Add', 'send_file': True}
-    return render(request, 'base/extending/form.html', context=context)
+class UserFollowingView(UserProfileView):
+    template_name = 'base/user_following.html'
+
+    def get_dynamic_context(self):
+        return {'following': self.object.ordered_following()}
 
 
-def show_post(request: HttpRequest, pk: int) -> HttpResponse:
-    post = get_object_or_404(Article, pk=pk)
-    comments = post.comments.all()
-    comment_form = CommentForm()
-    context = {'post': post, 'comment_form': comment_form,
-               'comments': comments}
-    return render(request, 'base/post.html', context=context)
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class FollowSystemView(View):
+    follow = True
 
-
-@login_required(login_url='login')
-@check_owner(Article, 'pk', 'author_id')
-def edit_post(request: HttpRequest, post: Article) -> HttpResponse | HttpResponseRedirect:
-    if request.method == 'POST':
-        form = ArticleForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            messages.success(request, _("Changes have been saved!"))
-            form.save()
-            return redirect('home')
-        messages.error(request, _("Something went wrong!"))
-    else:
-        form = ArticleForm(instance=post)
-    context = {'form': form, 'title': f"Edit {post.title}",
-               'submit': 'Edit', 'send_file': True}
-    return render(request, 'base/extending/form.html', context)
-
-
-@login_required(login_url='login')
-@check_owner(Article, 'pk', 'author_id')
-def delete_post(request: HttpRequest, post: Article) -> HttpResponseRedirect:
-    messages.success(request, _("Post has been deleted!"))
-    post.delete()
-    return redirect('home')
-
-
-# comment views
-@login_required(login_url='login')
-def post_comment(request: HttpRequest) -> HttpResponseRedirect:
-    if request.method != 'POST':
+    def get(self, request, slug: str):
+        user = get_object_or_404(User, slug=slug)
+        try:
+            if self.follow:
+                user.followers.add(request.user)
+            else:
+                user.followers.remove(request.user)
+        except Exception as e:
+            print(e)
+            messages.error(request, _("Something went wrong!"))
+        else:
+            messages.info(request, _(f"You {(not self.follow or '') and 'un'}followed '%s' ") %
+                          user.username)
         return redirect(request.META.get('HTTP_REFERER', 'home'))
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        form.save(request.user.pk, request.POST.get('post_pk'))
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class EditProfileView(MyBaseFormMixin, UpdateView):
+    form_class = UserEditForm
+    template_name = 'base/edit_profile.html'
+    static_context = {'submit': 'edit', 'send_file': True}
+    success_message = 'Changes have been saved'
+
+    def get_dynamic_context(self):
+        return {'title': _("Edit %s") % self.object.username}
+
+    def get_object(self, *args, **kwargs):
+        return self.request.user
+
+
+# Post view classes
+class PostsView(MyBaseListView):
+    model = Post
+    template_name = 'base/home.html'
+    context_object_name = 'posts'
+
+    def get_lookup_args(self, query):
+        return (Q(title__icontains=query) |
+                Q(author__username__icontains=query) |
+                Q(content__icontains=query),)
+
+
+class PostView(MyBaseMixin, DetailView):
+    model = Post
+    template_name = 'base/post.html'
+    context_object_name = 'post'
+
+    def get_dynamic_context(self):
+        comments = self.object.comments.all()
+        comment_form = CommentForm()
+        return {'comment_form': comment_form,
+                'comments': comments}
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class CreatePostView(MyBaseFormMixin, CreateView):
+    form_class = PostForm
+    template_name = 'base/extending/form.html'
+    success_message = "Post has been added!"
+    static_context = {'title': 'Add a Post',
+                      'submit': 'Add', 'send_file': True}
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['author'] = self.request.user
+        return kwargs
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class EditPostView(MyBaseFormMixin, UpdateView):
+    form_class = PostForm
+    template_name = 'base/extending/form.html'
+    static_context = {'submit': 'Edit', 'send_file': True}
+    success_message = "Changes have been saved!"
+
+    def get_dynamic_context(self):
+        return {'title': f"Edit {self.object.title}"}
+
+    def get_object(self, *args, **kwargs):
+        return get_object_or_404(self.request.user.posts, pk=self.kwargs.get('pk'))
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class DeletePostView(MyBaseFormMixin, DeleteView):
+    model = Post
+    template_name = 'base/confirm.html'
+    success_url = reverse_lazy('home')
+    success_message = "Post has been deleted!"
+
+    def get_object(self, *args, **kwargs):
+        return get_object_or_404(self.request.user.posts, pk=self.kwargs.get('pk'))
+
+
+@method_decorator(login_required(login_url='login'), name='dispatch')
+class PostCommentView(View):
+    form_class = CommentForm
+
+    def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        super().dispatch(request, *args, **kwargs)
+        return redirect(request.META.get('HTTP_REFERER', 'home'))
+
+    def post(self, request: HttpRequest, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.save(request.user.pk, request.POST.get('post_pk'))

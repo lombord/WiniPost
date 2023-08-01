@@ -18,8 +18,11 @@
                 <h2 class="text-center pb-2 pb-sm-3">
                   {{ post.title|truncatechars:50 }}
                 </h2>
-                <div>
-                  <img src="{{ post.image.url }}" class="img-fluid w-100 rounded-2 object-fit-cover" style="max-height: 400px;" alt="" />
+                <div class="mb-3">
+                  <img src="{{ post.image.url }}"
+                       class="img-fluid w-100 rounded-2 object-fit-cover"
+                       style="max-height: 440px"
+                       alt="" />
                 </div>
                 <a href="{{ post.author.get_absolute_url }}"
                    class="post-author lead link-primary text-lowercase">

@@ -1,18 +1,22 @@
-from typing import Any
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-from .models import Article, User, Comment
+from .models import Post, User, Comment
+
+
+class MyImageWidget(forms.ClearableFileInput):
+    template_name = 'base/widgets/image_input.html'
 
 
 class MyBaseForm():
     simple_forms = set()
     exclude_required = set()
+    dont_show = set()
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.set_base_attrs()
-        self.exclude_fields()
+        self.exclude_required and self.exclude_fields()
 
     def exclude_fields(self):
         for name in self.exclude_required:
@@ -25,28 +29,12 @@ class MyBaseForm():
             attrs['placeholder'] = visible.name
 
 
-class ArticleForm(MyBaseForm, forms.ModelForm):
-    simple_forms = {'image', }
-
-    class Meta:
-        model = Article
-        exclude = 'author',
-
-    def save(self, author=None, commit: bool = True):
-        post = super().save(commit=False)
-        if author is not None:
-            post.author_id = author.id
-        if commit:
-            post.save()
-        return post
-
-
-class LoginForm(MyBaseForm, forms.Form):
-    username = forms.CharField(max_length=255)
-    password = forms.CharField(max_length=255, widget=forms.PasswordInput())
+# User forms
+class LoginForm(MyBaseForm, AuthenticationForm):
 
     def clean_username(self):
         return self.cleaned_data['username'].lower()
+
 
 class UserRegisterForm(MyBaseForm, UserCreationForm):
 
@@ -60,19 +48,44 @@ class UserRegisterForm(MyBaseForm, UserCreationForm):
 
 
 class UserEditForm(MyBaseForm, forms.ModelForm):
-    simple_forms = {'photo', }
     exclude_required = {'email', 'about'}
+    dont_show = {'photo', 'color'}
 
     class Meta:
         model = User
-        fields = ('photo', 'first_name', 'last_name',
-                  'birthday', 'email', 'about')
+        fields = ('photo', 'color', 'first_name', 'last_name',
+                  'birthday', 'email', 'about',)
         widgets = {
             'birthday': forms.DateInput(attrs={'type': 'date'}),
-            'photo': forms.ClearableFileInput(attrs={'id': 'img_input'})
+            'photo': MyImageWidget(attrs={'id': 'imgInput'}),
+            'color': forms.TextInput(attrs={'type': 'color', 'id': 'colorInput',
+                                            'class': 'color-picker py-2'})
         }
 
 
+# Post forms
+class PostForm(MyBaseForm, forms.ModelForm):
+    simple_forms = {'image', }
+
+    class Meta:
+        model = Post
+        exclude = 'author',
+
+    def __init__(self, *args, author=None, **kwargs) -> None:
+        self.author = author
+        super().__init__(*args, **kwargs)
+
+    def save(self, commit: bool = True):
+        post = super().save(commit=False)
+        if self.author:
+            post.author_id = self.author.pk
+
+        if commit:
+            post.save()
+        return post
+
+
+# comment forms
 class CommentForm(MyBaseForm, forms.ModelForm):
 
     class Meta:

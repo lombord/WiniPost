@@ -2,21 +2,34 @@ from datetime import date
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MaxValueValidator
+from django.core.validators import MaxValueValidator, RegexValidator
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from django.urls import reverse
 
 
+def user_upload_to(self, filename):
+    return f"users/{self.username}/profile/{filename}"
+
+
+class LowerCharField(models.CharField):
+    def get_prep_value(self, value: str) -> str:
+        return value and value.lower()
+
+
 class User(AbstractUser):
+    DEFAULT_COLOR = '#178dff'
     first_name = models.CharField(_("first name"), max_length=150)
     last_name = models.CharField(_("last name"), max_length=150)
-    photo = models.ImageField(
-        upload_to="users/photos/%Y/%m/%d/", default="defaults/default-user.png")
+    photo = models.ImageField(_('user photo'), upload_to=user_upload_to,
+                              default="defaults/default-user.png")
     birthday = models.DateField(_("birthday"), null=True, validators=[
                                 MaxValueValidator(date.today,
                                                   _('Please choose correct birthday!')),])
+    color = LowerCharField(_("color"), max_length=7, null=True, default=DEFAULT_COLOR,
+                           validators=[RegexValidator(r'^#[A-fa-f\d]{6}$',
+                                                      _("color should be a hex value!"))])
     about = models.TextField(_("about"), default="")
     slug = models.SlugField(_("slug"), null=True, unique=True)
     followers = models.ManyToManyField(
@@ -24,11 +37,12 @@ class User(AbstractUser):
         related_name='following',
         symmetrical=False,
         through='Follow',
-        through_fields=('following', 'follower'))
+        through_fields=('following', 'follower'),
+        verbose_name=_('followers'))
 
     class Meta:
         indexes = [
-            models.Index(fields=['slug',]),]
+            models.Index(fields=['slug',], name='user_slug_index'),]
 
     def save(self, *args, **kwargs):
         self.username = self.username.lower()
@@ -39,9 +53,18 @@ class User(AbstractUser):
     def get_absolute_url(self, name='user'):
         return reverse(name, kwargs={"slug": self.slug})
 
+    def ordered_followers(self):
+        return self.followers.all().order_by('-following_set__followed_date')
+
+    def ordered_following(self):
+        return self.following.all().order_by('-followers_set__followed_date')
+
     def get_age(self):
         return (date.today().year - self.birthday.year
                 if self.birthday else 0)
+
+    def get_color(self):
+        return self.color or self.DEFAULT_COLOR
 
 
 class Follow(models.Model):
@@ -52,10 +75,11 @@ class Follow(models.Model):
     follower = models.ForeignKey(User,
                                  on_delete=models.CASCADE,
                                  verbose_name=_('follower'),
-                                 related_name='followed_set')
-    followed_time = models.DateTimeField(auto_now_add=True)
+                                 related_name='following_set')
+    followed_date = models.DateTimeField(_('followed date'), auto_now_add=True)
 
     class Meta:
+        ordering = ['-followed_date',]
         constraints = [
             # check that user followed once
             models.UniqueConstraint(
@@ -80,10 +104,10 @@ class Follow(models.Model):
         return f"{self.following.username} followed by {self.follower.username}"
 
 
-class Article(models.Model):
+class Post(models.Model):
     title = models.CharField(_("title"), max_length=255)
     image = models.ImageField(_("post image"),
-                              upload_to='articles/%Y/%m/%d/', 
+                              upload_to='posts/%Y/%m/%d/',
                               default='defaults/default_article.png')
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, related_name='posts', verbose_name=_("author"))
@@ -99,12 +123,12 @@ class Article(models.Model):
         return reverse(name, kwargs={"pk": self.pk})
 
     def __str__(self) -> str:
-        return f"{self.author}:{self.title}"
+        return self.title[:30]
 
 
 class Comment(models.Model):
     article = models.ForeignKey(
-        Article, on_delete=models.CASCADE, related_name='comments', verbose_name=_("article"))
+        Post, on_delete=models.CASCADE, related_name='comments', verbose_name=_("article"))
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='post_comments', verbose_name=_("owner"))
     comment = models.TextField(_("comment"), max_length=10**3*2)

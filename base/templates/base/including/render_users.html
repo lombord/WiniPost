@@ -1,14 +1,20 @@
+{% load static %}
 {% load custom_tags %}
+<link rel="stylesheet" href="{% static 'base/styles/render_users.css' %}" />
 {% if user_in or users %}
   <div class="flex-grid gap-4 gap-sm-3">
     {% if user_in %}
       <div class="card bg-body-tertiary user-thumbnail"
            href="{{ request.user.get_absolute_url }}">
-        <img src="{{ request.user.photo.url }}"
-             style="height: 230px"
-             class="card-img-top user-photo object-fit-cover"
-             alt="{{ request.user.username }}" />
-        <div class="card-body">
+        <div class="card-img-top card-top position-relative mb-5"
+             style="background: {{ request.user.get_color }}">
+          <div class="profile-img-box px-3">
+            <img src="{{ request.user.photo.url }}"
+                 class="user-photo object-fit-cover shadow-sm rounded-2"
+                 alt="{{ request.user.username }}" />
+          </div>
+        </div>
+        <div class="card-body mt-4">
           <h4 class="card-title text-center">
             {{ request.user.username }}
           </h4>
@@ -27,11 +33,15 @@
     {% for user in users %}
       <div class="card bg-body-tertiary user-thumbnail"
            href="{{ user.get_absolute_url }}">
-        <img src="{{ user.photo.url }}"
-             style="height: 230px"
-             class="card-img-top user-photo object-fit-cover"
-             alt="{{ user.username }}" />
-        <div class="card-body">
+        <div class="card-img-top card-top position-relative mb-5"
+             style="background: {{ user.get_color }}">
+          <div class="profile-img-box">
+            <img src="{{ user.photo.url }}"
+                 class="user-photo object-fit-cover shadow-sm rounded-2"
+                 alt="{{ user.username }}" />
+          </div>
+        </div>
+        <div class="card-body mt-4">
           <h4 class="card-title text-center">
             {{ user.username }}
           </h4>

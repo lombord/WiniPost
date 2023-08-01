@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+  Delete {{ object }}
+{% endblock title %}
+{% block content %}
+  <section class="py-5">
+    <div class="container">
+      <div class="bg-body py-5 px-md-5 px-4 rounded-2 shadow-sm border">
+        <div class="pb-5">
+          <form action="" method="POST">
+            {% csrf_token %}
+            <div class="text-center">
+              <p class="fs-2">
+                Are you sure you want to delete:
+              </p>
+              <h2 class="text-ellipsis">
+                "{{ object }}"
+              </h2>
+            </div>
+            <div class="mt-5 d-flex flex-column flex-sm-row gap-3 justify-content-center align-items-center">
+              <input class="btn btn-primary btn-lg" type="submit" value="Delete" />
+              <a href="{{ request.META.HTTP_REFERER }}"
+                 role="button"
+                 class="btn btn-secondary btn-lg">
+                Go Back
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock content %}

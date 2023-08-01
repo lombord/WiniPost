@@ -9,7 +9,7 @@
     </div>
     <form role="search"
           class="flex-grow-1 order-last order-sm-0 mt-2 mt-sm-0"
-          action="{% url send_to|default:'home' %}">
+          action="{% url search_in|default:'home' %}">
       <div class="input-group">
         <input type="text"
                name="q"
@@ -62,26 +62,32 @@
                  data-bs-toggle="dropdown"
                  aria-expanded="false"
                  title="{{ request.user.username }}">
-              <img class="img-fluid rounded-3 border border-2 nav-profile-photo"
+              <img class="img-fluid rounded-3 border border-2 shadow-sm nav-profile-photo"
+                   style="border-color: {{ request.user.get_color }} !important"
                    src="{{ request.user.photo.url }}"
                    alt="" />
             </div>
             <ul class="dropdown-menu dropdown-menu-end">
               <li>
                 <a class="dropdown-item" href="{{ request.user.get_absolute_url }}">
-                  Profile
+                  <i class="fa-solid fa-user"></i> Profile
                 </a>
               </li>
               <li>
                 <a class="dropdown-item" href="{% url 'edit_profile' %}">
-                  Edit
+                  <i class="fa-solid fa-pen-to-square"></i> Edit
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{{ request.user|get_url:'user_posts' }}">
+                  <i class="fa-solid fa-list"></i> Posts
                 </a>
               </li>
               <li>
                 <hr class="dropdown-divider" />
               </li>
               <li>
-                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                <a class="dropdown-item" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
               </li>
             </ul>
           </li>

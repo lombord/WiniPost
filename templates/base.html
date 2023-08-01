@@ -34,8 +34,8 @@
   </head>
   <body class="bg-body-tertiary">
     {% if messages %}
-      <div class="fixed-top mt-2 mt-sm-4 mt-md-5 pt-md-4">
-        <div class="message-box">
+      <div class="fixed-top mt-2 mt-sm-4 mt-md-5 pt-md-4 pe-none">
+        <div class="message-box pe-auto">
           {% for message in messages %}
             <div class="alert {{ message.tags|default:'' }} alert-dismissible fade show flash-message"
                  role="alert">

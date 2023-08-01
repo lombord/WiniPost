@@ -11,8 +11,6 @@
     <div class="container">
       <div class="bg-body my-5 py-md-5 py-sm-4 py-3 px-3 border shadow-sm rounded-2">
         <div class="form-box py-md-5 py-3">
-          {% block form_extend_start %}
-          {% endblock form_extend_start %}
           <form action=""
                 method="POST"
                 autocomplete="on"
@@ -20,40 +18,49 @@
                   enctype="multipart/form-data"
                 {% endif %}>
             {% csrf_token %}
-            {% for field in form %}
-              {% if field.name in form.simple_forms %}
-                <div class="mb-3">
-                  <label for="{{ field.id_for_label }}" class="form-label">
-                    {{ field.label }}
-                  </label>
-                  {{ field }}
-                {% else %}
-                  <div class="form-floating mb-3">
-                    {{ field }}
-                    <label for="{{ field.id_for_label }}">
-                      {{ field.label }}
-                    </label>
-                  {% endif %}
-                  {% if field.errors %}
-                    <div class="form-text text-danger">
-                      {{ field.errors }}
+            {% block form_extend_start %}
+            {% endblock form_extend_start %}
+            {% for field in form.visible_fields %}
+              {% if field.name not in form.dont_show %}
+                <div>
+                  {% if field.name in form.simple_forms %}
+                    <div class="mb-3">
+                      <label for="{{ field.id_for_label }}" class="form-label">
+                        {{ field.label }}
+                      </label>
+                      {{ field }}
+                    </div>
+                  {% else %}
+                    <div class="form-floating mb-3">
+                      {{ field }}
+                      <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                      </label>
                     </div>
                   {% endif %}
-                  <div class="form-text">
-                    {{ field.help_text }}
+                  <div>
+                    {% if field.errors %}
+                      <div class="form-text text-danger">
+                        {{ field.errors }}
+                      </div>
+                    {% endif %}
+                    <div class="form-text">
+                      {{ field.help_text }}
+                    </div>
                   </div>
                 </div>
-              {% endfor %}
-              <div class="text-end">
-                <button type="submit" class="btn btn-primary">
-                  {{ submit|default:'Submit'|upper }}
-                </button>
-              </div>
-            </form>
-            {% block form_extend_end %}
-            {% endblock form_extend_end %}
-          </div>
+              {% endif %}
+            {% endfor %}
+            <div class="text-end">
+              <button type="submit" class="btn btn-primary">
+                {{ submit|default:'Submit'|upper }}
+              </button>
+            </div>
+          </form>
+          {% block form_extend_end %}
+          {% endblock form_extend_end %}
         </div>
       </div>
-    </section>
-  {% endblock content %}
+    </div>
+  </section>
+{% endblock content %}
