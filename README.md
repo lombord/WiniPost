@@ -34,6 +34,14 @@ In order to run the webapp you should download and install all the libraries in 
   py -m pip install -r requirements.txt
 ```
 
+
+## Update 8/02/2023
+
+- Changed default colors of Bootstrap
+- Improved design
+- Fixed CSS and JS bugs 
+
+
 ## Update 8/01/2023
 
 - Class Based Views
