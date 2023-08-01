@@ -11,7 +11,7 @@
   {% check_owner request user as is_owner %}
   <section>
     <div class="container py-5">
-      <div class="card overflow-hidden">
+      <div class="card overflow-hidden profile-box">
         <div class="profile-gradient text-white d-flex pb-3 pb-sm-0 pt-5"
              style="background: {{ user.get_color }}">
           <div class="py-3 py-sm-0 px-4 mx-auto mx-sm-0 flex-grow-1">
@@ -19,7 +19,7 @@
               <div>
                 <img class="img-fluid border border-3 rounded-3 shadow profile-photo"
                      src="{{ user.photo.url }}"
-                     style="border-color: {{user.get_color}} !important;"
+                     style="border-color: {{ user.get_color }} !important"
                      alt="{{ user }}" />
               </div>
               <div class="text-center text-sm-start">
@@ -61,10 +61,9 @@
           <div class="d-flex gap-3 flex-column flex-sm-row align-items-center justify-content-between">
             <div class="order-1 order-sm-0">
               {% if is_owner %}
-                <a class="btn btn-outline-primary"
+                <a class="btn btn-success edit-profile-btn"
                    href="{% url 'edit_profile' %}"
-                   data-mdb-ripple-color="dark"
-                   style="z-index: 1">
+                   data-mdb-ripple-color="dark">
                   <i class="fa-solid fa-pen-to-square"></i> Edit Profile
                 </a>
               {% endif %}
@@ -149,6 +148,3 @@
     </div>
   </section>
 {% endblock content %}
-{% block script %}
-  <script src="{% static 'base/js/render_users.js' %}"></script>
-{% endblock script %}

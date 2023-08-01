@@ -16,6 +16,14 @@ function loadTheme() {
   });
 }
 
+function setCustomLinks() {
+  document.querySelectorAll("*[custom-href]").forEach((elm) => {
+    elm.addEventListener("click", () => {
+      window.location.assign(elm.getAttribute("custom-href"));
+    });
+  });
+}
+
 function fixTextArea() {
   document.querySelectorAll("textarea").forEach((elm) => {
     elm.addEventListener("input", () => {
@@ -45,9 +53,10 @@ async function cleanFlashMessages() {
 }
 
 function main() {
-  fixTextArea();
-  loadTheme();
   cleanFlashMessages();
+  loadTheme();
+  setCustomLinks();
+  fixTextArea();
 }
 
 window.onload = main;

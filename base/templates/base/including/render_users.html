@@ -4,8 +4,8 @@
 {% if user_in or users %}
   <div class="flex-grid gap-4 gap-sm-3">
     {% if user_in %}
-      <div class="card bg-body-tertiary user-thumbnail"
-           href="{{ request.user.get_absolute_url }}">
+      <div class="card bg-body-tertiary border user-thumbnail"
+           custom-href="{{ request.user.get_absolute_url }}">
         <div class="card-img-top card-top position-relative mb-5"
              style="background: {{ request.user.get_color }}">
           <div class="profile-img-box px-3">
@@ -31,8 +31,8 @@
       </div>
     {% endif %}
     {% for user in users %}
-      <div class="card bg-body-tertiary user-thumbnail"
-           href="{{ user.get_absolute_url }}">
+      <div class="card bg-body-tertiary border user-thumbnail"
+           custom-href="{{ user.get_absolute_url }}">
         <div class="card-img-top card-top position-relative mb-5"
              style="background: {{ user.get_color }}">
           <div class="profile-img-box">

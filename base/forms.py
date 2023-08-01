@@ -25,7 +25,8 @@ class MyBaseForm():
     def set_base_attrs(self):
         for visible in self.visible_fields():
             attrs = visible.field.widget.attrs
-            attrs['class'] = attrs.get('class', '') + ' form-control'
+            attrs['class'] = attrs.get(
+                'class', '') + ' form-control bg-body-tertiary'
             attrs['placeholder'] = visible.name
 
 

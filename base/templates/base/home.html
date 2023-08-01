@@ -14,7 +14,8 @@
         {% if posts %}
           <div class="d-flex flex-column gap-5 posts-box my-4">
             {% for post in posts %}
-              <div class="border post-div shadow-sm bg-body-tertiary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4">
+              <div class="border post-div shadow-sm bg-body-secondary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4"
+                   custom-href="{{ post.get_absolute_url }}">
                 <h2 class="text-center pb-2 pb-sm-3">
                   {{ post.title|truncatechars:50 }}
                 </h2>
@@ -39,19 +40,22 @@
                   <div class="col-md d-flex gap-2 justify-content-end">
                     <a href="{{ post.get_absolute_url }}"
                        type="button"
-                       class="btn btn-outline-primary">
-                      <i class="fa-solid fa-eye"></i> More
+                       class="btn btn-primary">
+                      <i class="fa-solid fa-eye"></i>
+                      <span class="d-none d-sm-inline">More</span>
                     </a>
                     {% if request.user.pk == post.author_id or request.user.is_superuser %}
                       <a href="{{ post|get_url:'edit_post' }}"
                          type="button"
-                         class="btn btn-outline-success">
+                         class="btn btn-success">
                         <i class="fa-solid fa-pen-to-square"></i>
+                        <span class="d-none d-sm-inline">Edit</span>
                       </a>
                       <a href="{{ post|get_url:'delete_post' }}"
                          type="button"
-                         class="btn btn-outline-danger">
+                         class="btn btn-warning">
                         <i class="fa-solid fa-trash"></i>
+                        <span class="d-none d-sm-inline">Delete</span>
                       </a>
                     {% endif %}
                   </div>

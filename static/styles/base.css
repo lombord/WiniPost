@@ -42,6 +42,10 @@ p {
   max-width: 1000px;
 }
 
+*[custom-href] {
+  cursor: pointer;
+}
+
 .flex-grid {
   --col-width: 14em;
   --col-max-width: 18em;
@@ -64,21 +68,6 @@ p {
   white-space: nowrap;
 }
 
-.noselect {
-  /* iOS Safari */
-  -webkit-touch-callout: none;
-  /* Safari */
-  -webkit-user-select: none;
-  /* Konqueror HTML */
-  -khtml-user-select: none;
-  /* Old versions of Firefox */
-  -moz-user-select: none;
-  /* Internet Explorer/Edge */
-  -ms-user-select: none;
-  /* Non-prefixed version, currently
-                                        supported by Chrome, Edge, Opera and Firefox */
-  user-select: none;
-}
 .message-box {
   max-width: 700px;
   margin: 0 auto;

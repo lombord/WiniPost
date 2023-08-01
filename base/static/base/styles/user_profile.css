@@ -1,3 +1,7 @@
+.profile-box {
+  --profile-img-width: 200px;
+}
+
 .profile-gradient {
   background: rgb(23, 141, 255);
   position: relative;
@@ -29,7 +33,7 @@
 }
 
 .profile-photo {
-  width: 200px;
+  width: var(--profile-img-width);
   height: 180px;
   object-fit: cover;
 }
@@ -37,6 +41,10 @@
 .thumbnail-img {
   height: 220px;
   object-fit: cover;
+}
+
+.edit-profile-btn {
+  width: var(--profile-img-width);
 }
 
 @media screen and (max-width: 576px) {

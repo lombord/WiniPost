@@ -23,13 +23,13 @@
               </div>
               <div>
                 <i class="fa-solid fa-user text-primary pe-1"></i>
-                <a class="link hover-link link-primary"
+                <a class="link hover-link link-body-emphasis"
                    href="{{ post.author.get_absolute_url }}">
                   {{ post.author }}
                 </a>
               </div>
               <div>
-                <i class="fa-solid fa-comment text-success"></i>
+                <i class="fa-solid fa-comments text-success align-middle pe-1"></i>
                 <a href="#post-comments" class="hover-link link-body-emphasis">
                   {{ comments|length }} comments
                 </a>
@@ -41,12 +41,12 @@
               <div class="d-flex gap-2 justify-content-end mt-2 mt-sm-0">
                 <a href="{{ post|get_url:'edit_post' }}"
                    type="button"
-                   class="btn btn-outline-success">
+                   class="btn btn-success">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </a>
                 <a href="{{ post|get_url:'delete_post' }}"
                    type="button"
-                   class="btn btn-outline-danger">
+                   class="btn btn-warning">
                   <i class="fa-solid fa-trash"></i>
                 </a>
               </div>
@@ -59,12 +59,12 @@
                  src="{{ post.image.url }}"
                  alt="post image" />
           </div>
-          <div class="my-4 post-text lead fw-normal">
+          <div class="my-4 post-text lead fw-normal bg-body-tertiary rounded-2 p-3 p-sm-4">
             {{ post.content|linebreaks }}
           </div>
           <hr />
           {% if request.user.is_authenticated %}
-            <div class="mt-4 border bg-body-tertiary p-3 p-sm-4 rounded-3 shadow-sm mb-4">
+            <div class="mt-4 border bg-body-secondary p-3 p-sm-4 rounded-3 shadow-sm mb-4">
               <form action="{% url 'post_comment' %}" method="POST">
                 {% csrf_token %}
                 <input type="text" name="post_pk" hidden value="{{ post.pk }}" />
@@ -95,7 +95,7 @@
           </h3>
           <div id="post-comments" class="mt-4 d-flex flex-column gap-4">
             {% for comment in comments %}
-              <div class="d-sm-flex gap-2 p-3 p-sm-4 bg-body-tertiary rounded-3 shadow-sm">
+              <div class="d-sm-flex gap-2 p-3 p-sm-4 bg-body-secondary rounded-3 shadow-sm">
                 <div class="d-flex justify-content-center">
                   <img class="comment-img rounded-3 shadow-sm border border-2"
                        style="border-color: {{ comment.owner.get_color }} !important"

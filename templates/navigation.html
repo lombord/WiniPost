@@ -1,5 +1,5 @@
 {% load custom_tags %}
-<nav class="sticky-md-top navbar navbar-expand-sm bg-primary">
+<nav class="sticky-md-top navbar navbar-expand-sm bg-secondary">
   <div class="container justify-content-sm-between gap-3 align-items-center">
     <div class="navbar-brand d-flex gap-2 align-items-center">
       <div id="theme-toggler" style="cursor: pointer;">
@@ -16,7 +16,7 @@
                class="form-control bg-body-tertiary"
                placeholder="Search"
                aria-label="Text input with segmented dropdown button" />
-        <button type="button" class="btn btn-warning px-4">
+        <button type="button" class="btn btn-primary px-4">
           <i class="fa-solid fa-magnifying-glass"></i>
         </button>
       </div>
@@ -62,8 +62,7 @@
                  data-bs-toggle="dropdown"
                  aria-expanded="false"
                  title="{{ request.user.username }}">
-              <img class="img-fluid rounded-3 border border-2 shadow-sm nav-profile-photo"
-                   style="border-color: {{ request.user.get_color }} !important"
+              <img class="img-fluid rounded-3 border border-2 border-primary shadow-sm nav-profile-photo"
                    src="{{ request.user.photo.url }}"
                    alt="" />
             </div>
