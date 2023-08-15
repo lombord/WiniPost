@@ -35,6 +35,13 @@ In order to run the webapp you should download and install all the libraries in 
 ```
 
 
+## Update 8/15/2023
+
+- Added Topic system
+- Improved design, forms, CBV, and more 
+- Fixed bugs 
+
+
 ## Update 8/02/2023
 
 - Changed default colors of Bootstrap

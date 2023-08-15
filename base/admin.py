@@ -15,5 +15,6 @@ class MyUserAdmin(UserAdmin):
 
 
 admin.site.register(User, MyUserAdmin)
+admin.site.register(Topic)
 admin.site.register(Post)
 admin.site.register(Follow)

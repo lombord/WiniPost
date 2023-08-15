@@ -1,0 +1,10 @@
+{% extends 'base/users/user_profile.html' %}
+{% load custom_tags %}
+{% block profile_content %}
+  <p class="mb-3 lead fw-normal">
+    Following
+  </p>
+  <div>
+    {% render_users request following is_users=is_owner %}
+  </div>
+{% endblock profile_content %}

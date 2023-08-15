@@ -10,64 +10,46 @@
 {% block content %}
   <section class="py-5 posts-section">
     <div class="container">
-      <div class="bg-body border shadow-sm rounded-2 py-5 px-3 px-sm-4 px-md-5">
-        {% if posts %}
-          <div class="d-flex flex-column gap-5 posts-box my-4">
-            {% for post in posts %}
-              <div class="border post-div shadow-sm bg-body-secondary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4"
-                   custom-href="{{ post.get_absolute_url }}">
-                <h2 class="text-center pb-2 pb-sm-3">
-                  {{ post.title|truncatechars:50 }}
-                </h2>
-                <div class="mb-3">
-                  <img src="{{ post.image.url }}"
-                       class="img-fluid w-100 rounded-2 object-fit-cover"
-                       style="max-height: 440px"
-                       alt="" />
-                </div>
-                <a href="{{ post.author.get_absolute_url }}"
-                   class="post-author lead link-primary text-lowercase">
-                  @{{ post.author }}
-                </a>
-                <div class="pt-2 pb-4">
-                  {{ post.content|truncatechars:600 }}
-                </div>
-                <div class="post-date row row-gap-3 align-items-center">
-                  <p class="col-md m-0">
-                    <i class="fa-regular fa-clock"></i>
-                    {{ post.updated|timesince }} ago
-                  </p>
-                  <div class="col-md d-flex gap-2 justify-content-end">
-                    <a href="{{ post.get_absolute_url }}"
-                       type="button"
-                       class="btn btn-primary">
-                      <i class="fa-solid fa-eye"></i>
-                      <span class="d-none d-sm-inline">More</span>
-                    </a>
-                    {% if request.user.pk == post.author_id or request.user.is_superuser %}
-                      <a href="{{ post|get_url:'edit_post' }}"
-                         type="button"
-                         class="btn btn-success">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                        <span class="d-none d-sm-inline">Edit</span>
-                      </a>
-                      <a href="{{ post|get_url:'delete_post' }}"
-                         type="button"
-                         class="btn btn-warning">
-                        <i class="fa-solid fa-trash"></i>
-                        <span class="d-none d-sm-inline">Delete</span>
-                      </a>
-                    {% endif %}
-                  </div>
-                </div>
+      <div class="bg-body border shadow-sm rounded-2 py-3 py-sm-4 py-md-5 px-3 px-sm-4 px-md-5">
+        <div class="px-sm-2 px-md-3 px-lg-4 mx-lg-2 pb-md-3">
+          <div class="py-md-3">
+            <div class="d-flex align-items-end p-3 bg-body-secondary mb-3 rounded-2 border">
+              <h3 class="m-0">
+                Recent Posts
+              </h3>
+              <div class="flex-grow-1 text-end">
+                <a class="link link-primary lead" href="{% url 'posts' %}">Show All</a>
               </div>
-            {% endfor %}
+            </div>
+            {% render_vertical_posts request posts 6 %}
           </div>
-        {% else %}
-          <h1 class="text-center">
-            Empty
-          </h1>
-        {% endif %}
+          <hr class="my-5" />
+          <div>
+            <div class="d-flex align-items-end p-3 bg-body-secondary mb-3 rounded-2 border">
+              <h3 class="m-0">
+                Recent Topics
+              </h3>
+              <div class="flex-grow-1 text-end">
+                <a class="link link-primary lead" href="{% url 'topics' %}">Show All</a>
+              </div>
+            </div>
+            {% render_vertical_topics request topics 6 %}
+          </div>
+          <hr class="my-5" />
+          <div>
+            <div class="d-flex align-items-end p-3 bg-body-secondary mb-3 rounded-2 border">
+              <h3 class="m-0">
+                Newcomers
+              </h3>
+              <div class="flex-grow-1 text-end">
+                <a class="link link-primary link-hove lead" href="{% url 'users' %}">Show All</a>
+              </div>
+            </div>
+            <div>
+              {% render_users request users _max=6 %}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>

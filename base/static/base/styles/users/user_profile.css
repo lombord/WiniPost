@@ -1,0 +1,35 @@
+.profile-box {
+  --profile-img-width: 200px;
+}
+
+.photo-box {
+  max-width: 600px;
+}
+
+.profile-photo {
+  width: var(--profile-img-width);
+  height: 180px;
+  object-fit: cover;
+}
+
+.thumbnail-img {
+  height: 250px;
+  object-fit: cover;
+}
+
+.edit-profile-btn {
+  width: var(--profile-img-width);
+}
+
+@media screen and (max-width: 576px) {
+  .profile-photo {
+    width: 250px;
+    height: 230px;
+  }
+}
+
+@media screen and (min-width: 576px) {
+  .profile-head {
+    transform: translateY(1em);
+  }
+}

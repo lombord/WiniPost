@@ -9,8 +9,8 @@ from django.utils.text import slugify
 from django.urls import reverse
 
 
-def user_upload_to(self, filename):
-    return f"users/{self.username}/profile/{filename}"
+def user_upload_to(user, filename):
+    return f"users/{user.username}/profile/{filename}"
 
 
 class LowerCharField(models.CharField):
@@ -19,7 +19,7 @@ class LowerCharField(models.CharField):
 
 
 class User(AbstractUser):
-    DEFAULT_COLOR = '#178dff'
+    DEFAULT_COLOR = '#e30066'
     first_name = models.CharField(_("first name"), max_length=150)
     last_name = models.CharField(_("last name"), max_length=150)
     photo = models.ImageField(_('user photo'), upload_to=user_upload_to,
@@ -30,8 +30,10 @@ class User(AbstractUser):
     color = LowerCharField(_("color"), max_length=7, null=True, default=DEFAULT_COLOR,
                            validators=[RegexValidator(r'^#[A-fa-f\d]{6}$',
                                                       _("color should be a hex value!"))])
-    about = models.TextField(_("about"), default="")
+    about = models.TextField(_("about"), default="", blank=True)
     slug = models.SlugField(_("slug"), null=True, unique=True)
+    following_topics = models.ManyToManyField("Topic", through="TopicFollow",
+                                              related_name="people", verbose_name=_("following topics"))
     followers = models.ManyToManyField(
         'self',
         related_name='following',
@@ -54,10 +56,10 @@ class User(AbstractUser):
         return reverse(name, kwargs={"slug": self.slug})
 
     def ordered_followers(self):
-        return self.followers.all().order_by('-following_set__followed_date')
+        return self.followers.all().order_by('-following_set__pk')
 
     def ordered_following(self):
-        return self.following.all().order_by('-followers_set__followed_date')
+        return self.following.all().order_by('-followers_set__pk')
 
     def get_age(self):
         return (date.today().year - self.birthday.year
@@ -104,11 +106,70 @@ class Follow(models.Model):
         return f"{self.following.username} followed by {self.follower.username}"
 
 
+class Topic(models.Model):
+    DEFAULT_COLOR = "#e30066"
+
+    image = models.ImageField(_("topic image"), upload_to="topics/%Y/%m/%d/",
+                              blank=True, default="defaults/default_article.png")
+    color = LowerCharField(_("color"), max_length=7, null=True, default=DEFAULT_COLOR,
+                           validators=[RegexValidator(r'^#[A-fa-f\d]{6}$',
+                                                      _("color should be a hex value!"))])
+    title = LowerCharField(_("name"), max_length=100, unique=True)
+    description = models.TextField(
+        _("description"), max_length=600, default="")
+    creator = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                related_name="topics")
+
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = '-created',
+        verbose_name = _("topic")
+        verbose_name_plural = _("topics")
+        indexes = [models.Index(
+            fields=('title',), name="topic_name_index"),]
+
+    def get_absolute_url(self, name='topic'):
+        return reverse(name, kwargs={"pk": self.pk})
+
+    def get_color(self):
+        return self.color or self.DEFAULT_COLOR
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class TopicFollow(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='following_topics_set', verbose_name=_('followed user'))
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE,
+                              related_name='people_set', verbose_name=_('following topic'))
+    followed_date = models.DateField(auto_now_add=True)
+
+    class Meta:
+        ordering = 'followed_date',
+        constraints = models.UniqueConstraint(fields=('user', 'topic'), name='topic_follow_once',
+                                              violation_error_message=_("Can't follow twice!")),
+
+    def __str__(self) -> str:
+        return f"{self.user} followed topic: {self.topic}"
+
+
+def get_default_topic():
+    if not Topic.objects.exists():
+        Topic.objects.create(title="off topic")
+    return 1
+
+
 class Post(models.Model):
-    title = models.CharField(_("title"), max_length=255)
     image = models.ImageField(_("post image"),
                               upload_to='posts/%Y/%m/%d/',
                               default='defaults/default_article.png')
+    topic = models.ForeignKey(
+        Topic, on_delete=models.SET_DEFAULT, verbose_name=_("topic"), related_name='posts',
+        default=get_default_topic)
+    title = models.CharField(_("title"), max_length=255)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, null=True, related_name='posts', verbose_name=_("author"))
     content = models.TextField(_("content"), max_length=10**4)
@@ -117,22 +178,28 @@ class Post(models.Model):
     updated = models.DateTimeField(_("updated"), auto_now=True)
 
     class Meta:
-        ordering = '-updated', '-created'
+        ordering = '-created', '-updated'
 
     def get_absolute_url(self, name='post'):
         return reverse(name, kwargs={"pk": self.pk})
+
+    @property
+    def edited(self):
+        return self.created != self.updated
 
     def __str__(self) -> str:
         return self.title[:30]
 
 
 class Comment(models.Model):
-    article = models.ForeignKey(
-        Post, on_delete=models.CASCADE, related_name='comments', verbose_name=_("article"))
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, related_name='comments', verbose_name=_("post"))
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='post_comments', verbose_name=_("owner"))
     comment = models.TextField(_("comment"), max_length=10**3*2)
+
     created = models.DateTimeField(_("created"), auto_now_add=True)
+    updated = models.DateTimeField(_("updated"), auto_now=True)
 
     class Meta:
         ordering = '-created',

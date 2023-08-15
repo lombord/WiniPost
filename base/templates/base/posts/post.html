@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block title %}
+  {{ post.title }}
+{% endblock title %}
+{% block link %}
+  <link rel="stylesheet" href="{% static 'base/styles/posts/post.css' %}" />
+{% endblock link %}
+{% block content %}
+  <section class="py-5 px-md-5 px-sm-4">
+    <div class="container">
+      <div class="bg-body border py-5 px-md-5 px-sm-4 px-3 shadow-sm rounded-2">
+        <div class="post-header">
+          <h1 class="text-center display-6 fw-medium text-primary mb-4">
+            {{ post.title }}
+          </h1>
+          <div class="mb-3 d-flex gap-3 justify-content-between flex-wrap align-items-end">
+            <div class="d-flex gap-3 gap-sm-4 flex-wrap align-items-center">
+              <div>
+                <i class="fa-solid fa-clock text-warning pe-1"></i>
+                <span>{{ post.created|date:'N j, Y' }}</span>
+              </div>
+              <div>
+                <i class="fa-solid fa-user text-primary pe-1"></i>
+                <a class="link hover-link link-body-emphasis"
+                   href="{{ post.author.get_absolute_url }}">
+                  {{ post.author }}
+                </a>
+              </div>
+              {% if post.edited %}
+                <div>
+                  <i class="fa-solid fa-pen text-success pe-1"></i>
+                  Edited
+                </div>
+              {% endif %}
+              <div>
+                <a href="{{ post.topic.get_absolute_url }}" class="btn btn-secondary">
+                  <i class="fa-solid fa-star"></i>
+                  {{ post.topic.title|truncatechars:10 }}
+                </a>
+              </div>
+            </div>
+            {% if request.user.pk == post.author_id %}
+              <div class="d-flex gap-2 justify-content-end flex-grow-1">
+                <a href="{{ post|get_url:'edit_post' }}"
+                   type="button"
+                   class="btn btn-success">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+                <a href="{{ post|get_url:'delete_post' }}"
+                   type="button"
+                   class="btn btn-warning">
+                  <i class="fa-solid fa-trash"></i>
+                </a>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="mt-3">
+          <div>
+            <img class="img-fluid w-100 object-fit-cover rounded-2 post-img"
+                 src="{{ post.image.url }}"
+                 alt="post image" />
+          </div>
+          <div class="my-4 post-text lead fw-normal bg-body-tertiary rounded-2 p-3 p-sm-4">
+            {{ post.content|linebreaks }}
+          </div>
+          <hr />
+          {% if request.user.is_authenticated %}
+            <div class="mt-4 border bg-body-secondary p-3 p-sm-4 rounded-3 mb-4">
+              <form action="{% url 'post_comment' %}" method="POST">
+                {% csrf_token %}
+                <input type="text" name="post_pk" hidden value="{{ post.pk }}" />
+                <div class="d-flex gap-2 align-items-start mb-3">
+                  <div class="d-none d-sm-block">
+                    <img class="comment-img rounded-3 shadow-sm"
+                         src="{{ request.user.photo.url }}"
+                         alt="" />
+                  </div>
+                  <div class="form-floating flex-grow-1">
+                    {{ comment_form.comment }}
+                    <label for="{{ comment_form.comment.id_for_label }}">
+                      {{ comment_form.comment.label }}
+                    </label>
+                  </div>
+                </div>
+                <div class="text-end">
+                  <button type="submit" class="btn btn-primary fs-5">
+                    <i class="fa-solid fa-comment-dots"></i>
+                    Post
+                  </button>
+                </div>
+              </form>
+            </div>
+          {% endif %}
+          <h3>
+            <i class="fa-solid fa-message text-primary align-middle"></i> {{ comments|length }} comments
+          </h3>
+          <div id="post-comments" class="mt-4 d-flex flex-column gap-4">
+            {% for comment in comments %}
+              <div class="d-sm-flex gap-2 p-3 p-sm-4 bg-body-secondary rounded-3 shadow-sm">
+                <div class="d-flex justify-content-center">
+                  <img class="comment-img rounded-3 shadow-sm border border-2"
+                       style="border-color: {{ comment.owner.get_color }} !important"
+                       src="{{ comment.owner.photo.url }}"
+                       alt="" />
+                </div>
+                <div class="flex-grow-1 pt-2">
+                  <div class="d-flex gap-3 justify-content-between align-items-center">
+                    <a class="link-primary hover-link fs-5 text-ellipsis"
+                       href="{{ comment.owner.get_absolute_url }}">
+                      @{{ comment.owner }}
+                    </a>
+                    <div class="text-ellipsis">
+                      <i class="fa-regular fa-clock"></i>
+                      {{ comment.created|timesince }} ago
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <p class="text-break px-2 py-1">
+                      {{ comment.comment|linebreaksbr }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock content %}

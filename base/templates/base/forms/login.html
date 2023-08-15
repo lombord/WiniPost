@@ -1,0 +1,14 @@
+{% extends 'base/forms/form.html' %}
+{% block form_extend_end %}
+  <div class="mt-4 pt-2 text-center">
+    {% if is_login %}
+      <p>
+        Don't have an account? <a href="{% url 'register' %}" class="link link-primary hover-link"><strong>Register</strong></a>
+      </p>
+    {% else %}
+      <p>
+        Already have an account? <a href="{% url 'login' %}" class="link link-primary hover-link"><strong>Login</strong></a>
+      </p>
+    {% endif %}
+  </div>
+{% endblock form_extend_end %}

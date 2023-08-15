@@ -1,0 +1,19 @@
+{% extends 'base/posts/mini_posts.html' %}
+{% block card_content %}
+  <div>
+    <div class="d-flex justify-content-center align-items-center gap-2">
+      <div>
+        <img class="rounded-3 object-fit-cover border border-2 shadow-sm"
+             src="{{ post.author.photo.url }}"
+             alt=""
+             style="width: 45px;
+                    height: 45px;
+                    border-color: {{ post.author.get_color }} !important" />
+      </div>
+      <a class="link link-primary fs-5 link-underline-opacity-0"
+         href="{{ post.author.get_absolute_url }}">
+        @{{ post.author.username }}
+      </a>
+    </div>
+  </div>
+{% endblock card_content %}

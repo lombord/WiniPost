@@ -1,0 +1,8 @@
+.topic-img {
+  --img-width: 420px;
+}
+
+.head-bottom {
+  position: relative;
+  transform: translateY(50%);
+}

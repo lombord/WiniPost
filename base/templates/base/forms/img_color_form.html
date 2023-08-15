@@ -1,0 +1,36 @@
+{% extends 'base/forms/form.html' %}
+{% load static %}
+{% load custom_tags %}
+{% block link %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'base/styles/forms/img_color_form.css' %}" />
+{% endblock link %}
+{% block form_extend_start %}
+  {% call_method form 'get_image' as img_field %}
+  {% call_method form 'get_color' as color_field %}
+  <div class="d-flex position-relative justify-content-center align-items-center shadow-sm border mx-0 px-3 py-4 py-md-5 mb-4 rounded-2 overflow-hidden"
+       id="colorPreview">
+    <div class="img-box mb-4 border border-3 bg-body-secondary rounded-3 shadow-sm overflow-hidden text-primary"
+         style="--img-width: {{ form.image_width|default:'250' }}px;
+                --img-height: {{ form.image_height|default:'250' }}px">
+      <img id="editImg"
+           class="w-100 preview-img text-primary"
+           src="{{ img_field.initial.url }}"
+           alt="Choose an image" />
+      <div role="button" id="setImgBtn" class="add-box fs-2 text-white">
+        <i class="fa-solid fa-plus"></i>
+      </div>
+    </div>
+    {% if color_field %}
+      <div id="colorBox" class="color-box">
+        {{ color_field }}
+      </div>
+    {% endif %}
+    <div id="imgBox" class="d-none">
+      {{ img_field }}
+    </div>
+  </div>
+{% endblock form_extend_start %}
+{% block script %}
+  <script src="{% static 'base/js/img_color_form.js' %}"></script>
+{% endblock script %}

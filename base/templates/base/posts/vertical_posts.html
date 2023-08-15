@@ -1,0 +1,73 @@
+{% load custom_tags %}
+<div>
+  {% if posts %}
+    <div class="d-flex flex-column gap-5">
+      {% for post in posts %}
+        <div class="border post-div bg-body-secondary rounded-2 px-3 px-sm-4 px-md-5 py-5 pb-4"
+             custom-href="{{ post.get_absolute_url }}">
+          <h2 class="text-center pb-2 pb-sm-3">
+            {{ post.title|truncatechars:50 }}
+          </h2>
+          <div class="mb-3">
+            <img src="{{ post.image.url }}"
+                 class="img-fluid w-100 rounded-2 object-fit-cover"
+                 style="max-height: 440px"
+                 alt="" />
+          </div>
+          <div class="d-flex justify-content-between gap-2 flex-wrap align-items-center">
+            <div>
+              <a href="{{ post.author.get_absolute_url }}"
+               class="post-author lead link-primary text-lowercase">
+              @{{ post.author }}
+            </a>
+            </div>
+            <div class="flex-grow-1 text-end">
+              <a href="{{ post.topic.get_absolute_url }}"
+                 class="btn btn-secondary shadow-sm">
+                <i class="fa-solid fa-star"></i>
+                {{ post.topic.title }}
+              </a>
+            </div>
+          </div>
+          <div class="pt-2 pb-4">
+            <p>
+              {{ post.content|truncatechars:600 }}
+            </p>
+          </div>
+          <div class="post-date row row-gap-3 align-items-center">
+            <p class="col-md m-0">
+              <i class="fa-regular fa-clock"></i>
+              {{ post.updated|timesince }} ago
+            </p>
+            <div class="col-md d-flex gap-2 justify-content-end">
+              <a href="{{ post.get_absolute_url }}"
+                 type="button"
+                 class="btn btn-primary">
+                <i class="fa-solid fa-eye"></i>
+                <span class="d-none d-sm-inline">More</span>
+              </a>
+              {% if request.user.pk == post.author_id %}
+                <a href="{{ post|get_url:'edit_post' }}"
+                   type="button"
+                   class="btn btn-success">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                  <span class="d-none d-sm-inline">Edit</span>
+                </a>
+                <a href="{{ post|get_url:'delete_post' }}"
+                   type="button"
+                   class="btn btn-warning">
+                  <i class="fa-solid fa-trash"></i>
+                  <span class="d-none d-sm-inline">Delete</span>
+                </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <h1 class="text-center">
+      Empty
+    </h1>
+  {% endif %}
+</div>

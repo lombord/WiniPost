@@ -1,0 +1,13 @@
+{% extends 'base_box.html' %}
+{% load custom_tags %}
+{% block title %}
+  Topics
+{% endblock title %}
+{% block box_content %}
+  <div class="px-4 py-5">
+    <h2 class="px-3 py-2 mb-3 bg-body-secondary border rounded-2">
+      {{ topics|length }} topics
+    </h2>
+    {% render_vertical_topics request topics %}
+  </div>
+{% endblock box_content %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% load custom_tags %}
+{% block title %}
+  Users
+{% endblock title %}
+{% block content %}
+  <section class="py-5">
+    <div class="container">
+      <div class="bg-body px-3 px-sm-4 px-md-5 py-5 rounded-2 shadow-sm border">
+        <h2 class="px-3 py-2 mb-3 bg-body-secondary border rounded-2">
+          {{ users|length }} Users
+        </h2>
+        {% render_users request users %}
+      </div>
+    </div>
+  </section>
+{% endblock content %}

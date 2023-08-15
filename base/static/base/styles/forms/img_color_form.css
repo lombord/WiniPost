@@ -1,0 +1,57 @@
+#colorPreview {
+  cursor: pointer;
+  background-color: var(--bs-tertiary-bg);
+}
+
+.color-box {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.color-box > input:first-child {
+  border-radius: 0;
+  cursor: pointer;
+  height: 35px;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+.img-box {
+  --img-width: 250px;
+  --img-height: 250px;
+  position: relative;
+  width: min(var(--img-width), 100%);
+  height: var(--img-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-box > img[src=""] {
+  width: auto !important;
+  height: auto;
+}
+
+.add-box {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.215);
+}
+
+.img-box:hover .add-box {
+  display: flex;
+}
+
+.preview-img {
+  height: 100%;
+  object-fit: cover;
+}

@@ -1,0 +1,19 @@
+{% if request.user.following_topics.exists and topic in request.user.following_topics.all %}
+  <form action="{% url 'unfollow_topic' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="pk" value="{{ topic.pk }}" />
+    <button type="submit" value="unfollow" class="btn btn-warning {{ classes }}">
+      Unfollow
+      <i class="fa-regular fa-star"></i>
+    </button>
+  </form>
+{% else %}
+  <form action="{% url 'follow_topic' %}" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="pk" value="{{ topic.pk }}" />
+    <button type="submit" value="follow" class="btn btn-primary {{ classes }}">
+      Follow
+      <i class="fa-solid fa-star"></i>
+    </button>
+  </form>
+{% endif %}
