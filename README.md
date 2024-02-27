@@ -1,16 +1,15 @@
 
-# WiniPost mini-social media
+# WiniPost
 
-This is my first webapp in django and this is gonna be mini social media
-where people can share posts, make comments, chat and follow to one another. In the future Im gonna merge this app with my main project '**WiniWorld**', so that people can socialize and enjoy games at the same time.
+![Overview](/Screenshots/1.png?raw=true)
 
-Currently Im working on this app, and Im gonna imporove it as much as possible. Hope you guys enjoy the process💙
+Blog app developed using Django, Bootstrap and JS. 
+Key features: user authentication, user following, topic based posts, post comments, user created topics, topic following and more.
 
 
 ## 🛠️ Used technologies
 🖥️ Backend:
 - Django
-- Python
 
 👨‍💻 Frontend:
 - HTML
@@ -21,12 +20,9 @@ Currently Im working on this app, and Im gonna imporove it as much as possible. 
 📊 DataBase:
 - SQLite
 
-Im also gonna use frontend framework such as Vue or React
-
-
 ## ✅ Usage
 
-In order to run the webapp you should download and install all the libraries in requirements.txt file 
+In order to run the app you should download and install libraries in requirements.txt file 
 
 ### Command
 
