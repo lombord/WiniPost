@@ -1,0 +1,71 @@
+version: "3.8"
+services:
+  django:
+    build:
+      target: production
+    environment:
+      - DJANGO_IS_PRODUCTION=1
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+    volumes:
+      - "static-data:/vol/web"
+    networks:
+      - backend
+      - webserver
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    expose:
+      - 8000
+    init: true
+    restart: unless-stopped
+
+  proxy:
+    build:
+      context: ./proxy
+    depends_on:
+      - django
+    volumes:
+      - "static-data:/vol/web"
+    ports:
+      - "80:8080"
+    networks:
+      - webserver
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 1.5s
+
+  postgresdb:
+    image: postgres:13.14-alpine3.18
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - PGUSER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      interval: 1m30s
+      start_interval: 10s
+      timeout: 30s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend
+    expose:
+      - "5432"
+    init: true
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  static-data:
+
+networks:
+  backend:
+  webserver:

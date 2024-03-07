@@ -1,0 +1,2 @@
+-r ./common.txt
+djlint==1.31.1
