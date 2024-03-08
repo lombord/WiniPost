@@ -1,7 +1,7 @@
 
 # WiniPost
 
-#### [Live Demo](http://ec2-16-171-143-49.eu-north-1.compute.amazonaws.com/)
+### [Live Demo](http://ec2-16-171-143-49.eu-north-1.compute.amazonaws.com/)
 
 Blog app developed using Django, Bootstrap and JS. 
 Key features: user authentication, user following, topic based posts, post comments, user created topics, topic following and more.
@@ -30,6 +30,10 @@ In order to run the app you should download and install libraries in requirement
   py -m pip install -r requirements.txt
 ```
 
+
+## Update 3/08/2024
+
+- Live demo
 
 ## Update 8/15/2023
 
