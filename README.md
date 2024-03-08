@@ -1,7 +1,7 @@
 
 # WiniPost
 
-![Overview](/Screenshots/1.png?raw=true)
+#### [Live Demo](http://ec2-16-171-143-49.eu-north-1.compute.amazonaws.com/)
 
 Blog app developed using Django, Bootstrap and JS. 
 Key features: user authentication, user following, topic based posts, post comments, user created topics, topic following and more.
